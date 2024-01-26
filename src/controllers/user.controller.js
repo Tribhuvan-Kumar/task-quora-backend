@@ -3,10 +3,14 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 
+import ms from "ms";
 import jwt from "jsonwebtoken";
 
+const accessTokenExpiry = ms(process.env.ACCESS_TOKEN_EXPIRY);
+const refreshTokenExpiry = ms(process.env.REFRESH_TOKEN_EXPIRY);
+
 const options = {
-  // httpOnly: true,
+  httpOnly: true,
   secure: true,
 };
 
@@ -103,8 +107,14 @@ const loginUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, {
+      ...options,
+      maxAge: accessTokenExpiry,
+    })
+    .cookie("refreshToken", refreshToken, {
+      ...options,
+      maxAge: refreshTokenExpiry,
+    })
     .json(
       new ApiResponse(
         200,
@@ -166,8 +176,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
+      .cookie("accessToken", accessToken, {
+        ...options,
+        maxAge: accessTokenExpiry,
+      })
+      .cookie("refreshToken", refreshToken, {
+        ...options,
+        maxAge: refreshTokenExpiry,
+      })
       .json(
         new ApiResponse(
           200,
