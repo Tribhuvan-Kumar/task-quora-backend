@@ -3,11 +3,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 
-import ms from "ms";
 import jwt from "jsonwebtoken";
 
-const accessTokenExpiry = ms(process.env.ACCESS_TOKEN_EXPIRY);
-const refreshTokenExpiry = ms(process.env.REFRESH_TOKEN_EXPIRY);
+const millisecondsInDay = parseInt(24 * 60 * 60 * 1000);
+const millisecondsInWeek = parseInt(7 * 24 * 60 * 60 * 1000);
 
 const options = {
   httpOnly: true,
@@ -109,11 +108,11 @@ const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, {
       ...options,
-      maxAge: accessTokenExpiry,
+      maxAge: millisecondsInDay,
     })
     .cookie("refreshToken", refreshToken, {
       ...options,
-      maxAge: refreshTokenExpiry,
+      maxAge: millisecondsInWeek,
     })
     .json(
       new ApiResponse(
